@@ -1,0 +1,142 @@
+/* localwx.css */
+#wx {
+  /* display: none; */
+  height: 300pt;
+  overflow: auto;
+  border: 1pt solid navy;
+}
+#dta {
+  display: none;
+  height: 300pt;
+  overflow: auto;
+  border: 1pt solid red;
+}
+table {
+  float: left;
+}
+h3, h4, h5 {
+  padding: 0;
+  margin: 0;
+}
+.chartTitle {
+  fill: black;
+  stroke: none;
+  text-anchor: middle;
+  font-family: sans-serif;
+  font-size: 12pt;
+}
+.axes {
+  fill: none;
+  stroke: black;
+  stroke-width: 2px;
+}
+.xTic {
+  fill: none;
+  stroke: none;
+}
+.xMajorTic {
+  stroke: black;
+  stroke-width: 3px;
+}
+.xMinorTic {
+  stroke: gray;
+  stroke-width: 1px;
+  stroke-dasharray: 5,5;
+}
+.xMajorTicLab {
+  text-anchor: middle;
+  fill: black;
+  strike: none;
+  font-family: sans-serif;
+  font-size: 9pt;
+}
+.xMinorTicLab {
+  text-anchor: middle;
+  fill: gray;
+  stroke: none;
+  font-family: sans-serif;
+  font-size: 7pt;
+}
+.yTic {
+  fill: none;
+  stroke: black;
+}
+.yTicLab {
+  text-anchor: end;
+  fill: black;
+  stroke: none;
+  font-family: sans-serif;
+  font-size: 9pt;
+}
+.probPrecip {
+  stroke: forestgreen;
+  fill: forestgreen;
+}
+.quantPrecip {
+  stroke: blue;
+  fill: blue;
+}
+.relHum {
+  fill: orange;
+  stroke: orange;
+}
+.popPath {
+  stroke-width: 2pt;
+  fill: none;
+}
+.popLab {
+  text-anchor: middle;
+  font-family: Arial, sans-serif;
+  font-size: 8pt;
+}
+/* .popClause {
+  fill: forestgreen;
+  stroke: none;
+}
+.qPclause {
+  fill: blue;
+  stroke: none;
+} */
+.qPbox {
+  fill: red;
+  opacity: .25;
+  stroke: blue;
+}
+/* .rhClause {
+  fill: orange;
+  stroke: none;
+} */
+.appTemp {
+  fill: crimson;
+  stroke: crimson;
+}
+.airTemp {
+  fill: navy;
+  stroke: navy;
+}
+.ttlText {
+  stroke: none;
+  text-anchor: middle;
+  font-family: sans-serif;
+  font-size: 12pt;
+}
+.atPath {
+  fill: none;
+  stroke-width: 2pt;
+}
+.tempTitle {
+  fill: crimson;
+  stroke: none;
+  text-anchor: middle;
+  font-family: sans-serif;
+  font-size: 12pt;
+}
+.chartArea {
+  fill: brown;
+  stroke: orange;
+}
+.humPath {
+  stroke: orange;
+  stroke-width: 2pt;
+  fill: none;
+}
