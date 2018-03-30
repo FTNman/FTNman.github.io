@@ -94,7 +94,7 @@ Chart.prototype.mapTextLab = function(e) {
   html += '<text x="'+x+'" y="'+y+'" class="popLab">'+e.value+'%</text>';
   return html;
 };
-Chart.prototype.mapQuantPrecip = function(e) {
+Chart.prototype.mapQuantPrecip = function(e,i,a,cls) {
   var html = '';
   var logScale = scaleData().domain([-3,1]).range([this.yAxOrig, this.yAxOrig-this.yAxLen]),
     precip = e.value/25.4,
@@ -108,8 +108,9 @@ Chart.prototype.mapQuantPrecip = function(e) {
   var x2 = this.xpos(((dur[1]*24) + (dur[2]*1))*1000*60*60 + startMs);
   var wid = x2 - x;
   html += TAG.buildTag('rect', {
-  	class: "qPbox",
-  	x: x, y: y,
+  	class: cls,
+  	x: x,
+  	y: y,
   	width: wid,
   	height: hgt
   });
@@ -258,7 +259,8 @@ function plotGrid(data, status, xhdr){
     d: pop.values.map(function(e,i){return chart.mapPath.call(chart,e,i)}).join('\n')
   });
   html += pop.values.map(function(e){return chart.mapTextLab.call(chart,e)}).join('\n');
-  html += quantPrecip.values.filter(function(e){return e.value>0;}).map(function(e){return chart.mapQuantPrecip.call(chart,e)}).join('\n');
+  html += quantPrecip.values.filter(function(e){return e.value>0;}).map(function(e,i,a){return chart.mapQuantPrecip.call(chart,e,i,a,'qPbox')}).join('\n');
+  html += data.properties.snowfallAmount.values.filter(function(e){return e.value}).map(function(e,i,a){return chart.mapQuantPrecip.call(chart,e,i,a,'snowbox')}).join('\n');
   html += TAG.buildTag('path', {class: 'humPath',
     d: data.properties.relativeHumidity.values.map(function(e,i){return chart.mapPath.call(chart,e,i)}).join('\n')
   });
