@@ -272,11 +272,15 @@ function plotGrid(data, status, xhdr){
   C2 = new Chart(chtWid, chtHgt, .05*chtWid, .05*chtWid, .2*chtHgt, .2*chtHgt);
   var at = data.properties.apparentTemperature,
       temp = data.properties.temperature,
-      tempMinMax = at.values.reduce(function(m, a) {
+      tempMinMax = at.values
+      	//filter temperature change of 40 deg C in one period (implies data error)
+      	.filter(function(e, i, a){return (e.value!==null) && (i===0 ? true : Math.abs(+e.value - +a[i-1].value) < 40)})
+      	.reduce(function(m, a) {
         m.min = Math.min(m.min, NWS.degF(a.value, at.uom));
         m.max = Math.max(m.max, NWS.degF(a.value, at.uom));
         return m;
       }, {min: Number.MAX_VALUE, max: Number.MIN_VALUE});
+  console.log('min-max: ' + tempMinMax.min + ', ' + tempMinMax.max);
   C2.yMin = tempMinMax.min-(tempMinMax.min%5);
   C2.yRange = tempMinMax.max+(5-(tempMinMax.max%5)) - C2.yMin;
   C2.xMin = chart.xMin; C2.xRange = chart.xRange;
@@ -303,6 +307,10 @@ function plotGrid(data, status, xhdr){
     d: at.values
        .map(function(e){return {validTime: e.validTime, value: NWS.degF(e.value, at.uom)}})
        .map(function(e,i){return C2.mapPath.call(C2,e,i)}).join('\n')
+  });
+  html += TAG.buildTag('line', { class: 'freezingPoint',
+  	x1: C2.xAxOrig, y1 : C2.ypos(32),
+  	x2: C2.xAxOrig + C2.xAxLen, y2: C2.ypos(32)
   });
   html += '</svg>';
   //alert(html);
