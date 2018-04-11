@@ -203,9 +203,9 @@ function CityChange(o) {
   NWS['geo'] = o.result;
   var geo = o.result.properties;
   city = geo.Name;
-  var url = NWS.baseUrl + geo.Lat + ',' + geo.Lon; //41.9796,-87.9045;
+  var url = NWS.baseUrl + (+geo.Lat).toFixed(4) + ',' + (+geo.Lon).toFixed(4); //41.9796,-87.9045;
   //url = NWS.baseUrl+'0,0';
-  $('#loc').empty().html(geo.Name + ', ' + geo.State +' (' + geo.Lat + ',' + geo.Lon + ')');
+  $('#loc').empty().html(geo.Name + ', ' + geo.State +' (' + (+geo.Lat).toFixed(4) + ',' + (+geo.Lon).toFixed(4) + ')');
   NWS.getData(url,initWX);
 };
 function initWX(data,status,xhdr){
