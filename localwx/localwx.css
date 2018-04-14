@@ -129,6 +129,12 @@ h3, h4, h5 {
   fill: none;
   stroke-width: 2pt;
 }
+.minTLab {
+	fill: blue;
+	stroke: navy;
+	font-family: sans-serif;
+	text-anchor: middle;
+}
 .freezingPoint {
 	stroke: dodgerblue;
 	stroke-width: 2px;

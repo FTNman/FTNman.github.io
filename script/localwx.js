@@ -308,6 +308,29 @@ function plotGrid(data, status, xhdr){
        .map(function(e){return {validTime: e.validTime, value: NWS.degF(e.value, at.uom)}})
        .map(function(e,i){return C2.mapPath.call(C2,e,i)}).join('\n')
   });
+  let tempScale = scaleData().range([C2.yAxOrig, (C2.yAxOrig - C2.yAxLen)]).domain([C2.yMin, (C2.yMin + C2.yRange)]);
+  let timeScale = scaleData().range([C2.xAxOrig, (C2.xAxOrig + C2.xAxLen)]).domain([C2.xMin, (C2.xMin + C2.xRange)]);
+  let minTemps = data.properties.minTemperature;
+  let maxTemps = data.properties.maxTemperature;
+  let tempLabs = function(e,options){
+  	  let rzlt = '';
+  	  let dt = e.validTime.split("/");
+  	  let tim = new Date(dt[0]).getTime() + (moment.duration(dt[1]).valueOf() / 2);
+  	  let deg = NWS.degF(e.value, minTemps.uom);
+  	  let x = timeScale(tim);
+  	  let y = tempScale(deg);
+  	  let opts = $.extend({}, options, {x: x, y: y, text: deg.toString()});
+  	  rzlt += TAG.text(opts);
+	  /* rzlt += TAG.buildTag('path', {
+		  d: "M" + (x-10) + "," + y + " l20,0 m-10,-10 l0,20",
+		  stroke: "brown", fill: "none"
+  	  }); */
+  	  return rzlt;
+  };
+  html += maxTemps.values
+  		.map(function(e){return tempLabs(e, {'class': 'minTLab', dy: "0em"})});
+  html += minTemps.values
+  		.map(function(e){return tempLabs(e, {'class': 'minTLab', dy: ".67em"})});
   html += TAG.buildTag('line', { class: 'freezingPoint',
   	x1: C2.xAxOrig, y1 : C2.ypos(32),
   	x2: C2.xAxOrig + C2.xAxLen, y2: C2.ypos(32)
