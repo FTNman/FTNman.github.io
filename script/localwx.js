@@ -234,6 +234,14 @@ function plotGrid(data, status, xhdr){
   chart.yMin = 0; chart.yRange = 100;
   chart.xMin = svt.getTime(); chart.xRange = 1000*60*60*24*5;
   html += '<svg id="PoP" version="1.1" width="'+chtWid+'" height="'+chtHgt+'">';
+  html += TAG.buildTag('defs', 
+  	TAG.buildTag('clipPath', {
+  	  id: "clipToChart",
+  	  text: TAG.buildTag('rect', {
+  	  	width: chart.xAxLen, height: chart.yAxLen, x: chart.xAxOrig, y: chart.topPad
+  	  })
+  	})
+  );
   html += TAG.text({
     class: 'chartTitle',
     x: chart.xAxOrig + (chart.xAxLen/2),
@@ -254,7 +262,7 @@ function plotGrid(data, status, xhdr){
     + '"/>'; */
   html += chart.yAxisLabels({ticInc: 25});
   html += chart.xAxisTimeline();
-  //html += pop.values.map(function(e){return chart.mapPoP.call(chart,e)}).join('\n');
+  html += '<g id="chartArea" clip-path="url(#clipToChart)">';
   html += TAG.buildTag('path', {class: 'probPrecip atPath',
     d: pop.values.map(function(e,i){return chart.mapPath.call(chart,e,i)}).join('\n')
   });
@@ -264,6 +272,7 @@ function plotGrid(data, status, xhdr){
   html += TAG.buildTag('path', {class: 'humPath',
     d: data.properties.relativeHumidity.values.map(function(e,i){return chart.mapPath.call(chart,e,i)}).join('\n')
   });
+  html += '</g>';
   html += '</svg>';
   //alert(html);
   $('#wx').html(html);
@@ -285,6 +294,14 @@ function plotGrid(data, status, xhdr){
   C2.yRange = tempMinMax.max+(5-(tempMinMax.max%5)) - C2.yMin;
   C2.xMin = chart.xMin; C2.xRange = chart.xRange;
   html += '<svg id="Temp" version="1.1" width="'+chtWid+'" height="'+chtHgt+'">';
+  html += TAG.buildTag('defs', 
+  	TAG.buildTag('clipPath', {
+  	  id: "clipToChart",
+  	  text: TAG.buildTag('rect', {
+  	  	width: C2.xAxLen, height: C2.yAxLen, x: C2.xAxOrig, y: C2.topPad
+  	  })
+  	})
+  );
   html += C2.yAxisLabels({ticInc: 5});
   html += C2.xAxisTimeline();
   html += TAG.text({
@@ -298,6 +315,7 @@ function plotGrid(data, status, xhdr){
       TAG.tspan({class: 'airTemp ttlText', text: 'Temperature'})
      ]
   });
+  html += '<g id="chartArea" clip-path="url(#clipToChart)">';
   html += TAG.buildTag('path', {class: 'airTemp atPath',
     d: temp.values
        .map(function(e){return {validTime: e.validTime, value: NWS.degF(e.value, at.uom)}})
@@ -335,6 +353,7 @@ function plotGrid(data, status, xhdr){
   	x1: C2.xAxOrig, y1 : C2.ypos(32),
   	x2: C2.xAxOrig + C2.xAxLen, y2: C2.ypos(32)
   });
+  html += '</g>';
   html += '</svg>';
   //alert(html);
   $('#PoP').after(html);
