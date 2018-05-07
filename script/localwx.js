@@ -179,6 +179,9 @@ var NWS = {
   degF: function(temp,uom) {
     return (uom.match(/degC/))?Math.round((9.0/5.0)*temp+32.0):temp;
   },
+  Pa2InHg: function(pa) {
+  	  return 0.0075006 * pa * .1 / 2.54;
+  },
   getData: function(url, callback, wxType) {
     $.getJSON(url)
     .done(callback)//.fail(function(h,s,e){this.apiFail(h,s,e,url)});
@@ -215,11 +218,83 @@ function initWX(data,status,xhdr){
   var loc = data.properties.relativeLocation.properties;
   var hrlyUrl = data.properties.forecastHourly;
   var gridUrl = data.properties.forecastGridData;
+  var staUrl = data.properties.observationStations;
   $('#subloc').empty().html(NWS.m2mi(loc.distance.value).toFixed(1) + 'mi ' + NWS.deg2compass(loc.bearing.value) + ' of ' + loc.city + ', ' + loc.state);
   html += '<pre>'+xhdr.responseText+'</pre>';
   $('#dta').html(html);
   NWS.getData(hrlyUrl,function(d){NWS['hrly']=d;});
   NWS.getData(gridUrl,function(d,s,h){NWS['grid']=d;plotGrid(d,s,h);});//prcsGrid(d,s,h)});
+  NWS.getData(staUrl,function(d,s,h){NWS['stations']=d;getObservations(d,s,h);});
+};
+function getObservations(data, status, hdr) {
+  let obsUrl = data.observationStations[0];
+  $.getJSON(obsUrl+"/observations",{limit: 5})
+  .done(processConditions);
+};
+function processConditions(data, status, hdr) {
+	NWS['observations'] = data;
+	let html = '';
+	const conditions = data.features[0].properties;
+	let fl = conditions.temperature.value === null ? null : NWS.degF(conditions.temperature.value, conditions.temperature.unitCode);
+	if (conditions.heatIndex.value !== null) { fl = NWS.degF(conditions.heatIndex.value, conditions.heatIndex.unitCode); }
+	if (conditions.windChill.value !== null) { fl = NWS.degF(conditions.windChill.value, conditions.windChill.unitCode); }
+	html += TAG.buildTag('h4', {
+		'class': 'condLoc',
+		text: "Current conditions at: " + NWS.stations.features[0].properties.name + ":"
+	});
+	html += TAG.buildTag('h5', {
+		"class": "obsTime",
+		text: "Observation time: " + new Date(conditions.timestamp).toLocaleString()
+	});
+	html += TAG.buildTag('img', {
+		"class": "icon",
+		src: conditions.icon
+	});
+	html += TAG.p({
+		"class": "condHead",
+		text: TAG.buildTag('span', {
+			'class': 'wind',
+			text: ['Winds: ',
+				conditions.windSpeed.value === null
+				? "N/A"
+				: NWS.deg2compass(conditions.windDirection.value) + ' at ' + Math.round(NWS.m2mi(conditions.windSpeed.value)*60*60) + ' mph'
+			]
+		})
+		+ TAG.buildTag('span', {
+			'class': 'pressure',
+			text: ['Barometer: ',
+				conditions.barometricPressure.value === null 
+				? "N/A"
+				: NWS.Pa2InHg(conditions.barometricPressure.value).toFixed(2) + ' inHg'
+			]
+		})
+		+ TAG.buildTag('span', {
+			'class': 'humidity',
+			text: ['Humidity: ',
+				conditions.relativeHumidity.value === null
+				? "N/A"
+				: Math.round(conditions.relativeHumidity.value) + '%'
+			]
+		})
+		+ TAG.buildTag('span', {
+			'class': 'dewpoint',
+			text: ['Dewpoint: ',
+				conditions.dewpoint.value === null
+				? "N/A"
+				: NWS.degF(conditions.dewpoint.value, conditions.dewpoint.unitCode) + '&deg;'
+			]
+		})
+	});
+	html += TAG.p({
+		"class": "currTemp",
+		text: (conditions.temperature.value === null ? "N/A" : (NWS.degF(conditions.temperature.value, conditions.temperature.unitCode) + "&deg;"))
+			+ " " + conditions.textDescription
+	});
+	html += fl === null ? "" : TAG.p({
+		"class": "tempRange",
+		text: "Feels like: " + fl + "&deg;"
+	});
+	$("#currCond").empty().html(html);
 };
 function plotGrid(data, status, xhdr){
   var html = '',
@@ -228,8 +303,8 @@ function plotGrid(data, status, xhdr){
     svt = new Date(data.properties.validTimes.split('/')[0]),
     pop = data.properties.probabilityOfPrecipitation,
     quantPrecip = data.properties.quantitativePrecipitation;
-  $('h5').empty();
-  $('#subloc').after('<h5>Forecast update time: '+new Date(data.properties.updateTime).toLocaleString()+'</h5>');
+/*   $('h5').empty();
+  $('#subloc').after('<h5>Forecast update time: '+new Date(data.properties.updateTime).toLocaleString()+'</h5>'); */
   chart = new Chart(chtWid, chtHgt, .05*chtWid, .05*chtWid, .2*chtHgt, .2*chtHgt);
   chart.yMin = 0; chart.yRange = 100;
   chart.xMin = svt.getTime(); chart.xRange = 1000*60*60*24*5;
@@ -253,6 +328,13 @@ function plotGrid(data, status, xhdr){
       ' & ',
       TAG.tspan({class: 'relHum ttlText', text: 'Relative Humidity'})
     ]
+  });
+  html += TAG.text({
+  	"class": "gridUpdtTime",
+  	x: chart.xAxOrig + chart.xAxLen,
+  	y: chart.topPad,
+  	dy: "-.2em",
+  	text: "Forecast update time: " + new Date(data.properties.updateTime).toLocaleString()
   });
   /* html += '<path class="axes" d="'
     + 'M' + chart.xAxOrig + ',' + chart.yAxOrig
