@@ -2,7 +2,8 @@ var TAG = {
 	div: function(options) { return TAG.buildTag('div', options) },
 	img: function(options) { return TAG.buildTag('img', options) },
 	p: function(options) { return TAG.buildTag('p', options) },
-        tspan: function(options) { return TAG.buildTag('tspan', options) },
+	span: function(options) { return TAG.buildTag('span', options) },
+	tspan: function(options) { return TAG.buildTag('tspan', options) },
 	text: function(options) { return TAG.buildTag('text', options) },
 	makeElement: function(tag, constOpts) {
 		return function(options){
@@ -208,12 +209,24 @@ function CityChange(o) {
   city = geo.Name;
   var url = NWS.baseUrl + (+geo.Lat).toFixed(4) + ',' + (+geo.Lon).toFixed(4); //41.9796,-87.9045;
   //url = NWS.baseUrl+'0,0';
-  $('#loc').empty().html(geo.Name + ', ' + geo.State +' (' + (+geo.Lat).toFixed(4) + ',' + (+geo.Lon).toFixed(4) + ')');
+  $('#loc').empty().html("Weather Forecast for: "
+  	  + TAG.span({
+  	  	style: "font-style: italic",
+  	  	text: geo.Name + ', ' + geo.State +' (' + (+geo.Lat).toFixed(4) + ',' + (+geo.Lon).toFixed(4) + ')'
+  	  })
+  );
   NWS.getData(url,initWX);
 };
 function initWX(data,status,xhdr){
   NWS['metaData'] = data;
-  if ($('#loc').html().length == 0) $('#loc').html('Current Location');
+  if ($('#loc').html().length == 0) $('#loc')
+  	.html('Weather Forecast for: '
+  		+ TAG.span({style: "font-style: italic", text: 'Your Current Location'})
+  	);
+  let locStr = $('#loc').html();
+  let now = moment();
+  locStr += " at " + now.format("h:mm a") + " on " + now.format("M/D/YYYY");
+  $('#loc').html(locStr);
   var html = '';
   var loc = data.properties.relativeLocation.properties;
   var hrlyUrl = data.properties.forecastHourly;
@@ -244,7 +257,7 @@ function processConditions(data, status, hdr) {
 	});
 	html += TAG.buildTag('h5', {
 		"class": "obsTime",
-		text: "Observation time: " + new Date(conditions.timestamp).toLocaleString()
+		text: "Observation time: " + moment(conditions.timestamp).fromNow() //new Date(conditions.timestamp).toLocaleString()
 	});
 	html += TAG.buildTag('img', {
 		"class": "icon",
@@ -292,7 +305,15 @@ function processConditions(data, status, hdr) {
 	});
 	html += fl === null ? "" : TAG.p({
 		"class": "tempRange",
-		text: "Feels like: " + fl + "&deg;"
+		text: TAG.span({style: "font-weight: bold", text: "Feels like: "}) + fl + "&deg;"
+	});
+	html += TAG.p({
+		"class": "tempRange",
+		text: TAG.span({style: "font-weight: bold", text: "High: "}) + NWS.degF(NWS.grid.properties.maxTemperature.values[0].value, NWS.grid.properties.maxTemperature.uom) + "&deg;"
+	});
+	html += TAG.p({
+		"class": "tempRange",
+		text: TAG.span({style: "font-weight: bold", text: "Low: "}) + NWS.degF(NWS.grid.properties.minTemperature.values[0].value, NWS.grid.properties.minTemperature.uom) + "&deg;"
 	});
 	$("#currCond").empty().html(html);
 };
@@ -334,7 +355,7 @@ function plotGrid(data, status, xhdr){
   	x: chart.xAxOrig + chart.xAxLen,
   	y: chart.topPad,
   	dy: "-.2em",
-  	text: "Forecast update time: " + new Date(data.properties.updateTime).toLocaleString()
+  	text: "Forecast update time: " + moment(data.properties.updateTime).fromNow() //new Date(data.properties.updateTime).toLocaleString()
   });
   /* html += '<path class="axes" d="'
     + 'M' + chart.xAxOrig + ',' + chart.yAxOrig
@@ -371,7 +392,7 @@ function plotGrid(data, status, xhdr){
         m.max = Math.max(m.max, NWS.degF(a.value, at.uom));
         return m;
       }, {min: Number.MAX_VALUE, max: Number.MIN_VALUE});
-  console.log('min-max: ' + tempMinMax.min + ', ' + tempMinMax.max);
+  //console.log('min-max: ' + tempMinMax.min + ', ' + tempMinMax.max);
   C2.yMin = tempMinMax.min-(tempMinMax.min%5);
   C2.yRange = tempMinMax.max+(5-(tempMinMax.max%5)) - C2.yMin;
   C2.xMin = chart.xMin; C2.xRange = chart.xRange;
