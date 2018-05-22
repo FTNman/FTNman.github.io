@@ -257,7 +257,7 @@ function processConditions(data, status, hdr) {
 	});
 	html += TAG.buildTag('h5', {
 		"class": "obsTime",
-		text: "Observation time: " + moment(conditions.timestamp).fromNow() //new Date(conditions.timestamp).toLocaleString()
+		text: "Observation time: " + ageString(conditions.timestamp)
 	});
 	html += TAG.buildTag('img', {
 		"class": "icon",
@@ -317,6 +317,21 @@ function processConditions(data, status, hdr) {
 	});
 	$("#currCond").empty().html(html);
 };
+function ageString(ts) {
+	let rzlt = '';
+	const dur = moment.duration(moment() - moment(ts));
+	if ( !dur.isValid() ) { rzlt = 'unknown'; }
+	else if (dur.asMilliseconds() < (1000 * 60)) { rzlt = 'just now'; }
+	else {
+		rzlt += dur.days() ? (dur.days() + ' day' + pluralSfx(dur.days()) + '') : '';
+		rzlt += dur.hours() ? (dur.hours() + ' hr' + pluralSfx(dur.hours()) + ' ') : '';
+		rzlt += (dur.minutes() + Math.round(dur.seconds() / 60)) ? (dur.minutes() + Math.round(dur.seconds() / 60) + ' min' + pluralSfx(dur.minutes() + Math.round(dur.seconds() / 60)) + ' ago') : '';
+	}
+	return rzlt;
+};
+function pluralSfx(val) {
+	return (val > 1) ? 's' : '';
+};
 function plotGrid(data, status, xhdr){
   var html = '',
     chtHgt = 200,
@@ -355,7 +370,7 @@ function plotGrid(data, status, xhdr){
   	x: chart.xAxOrig + chart.xAxLen,
   	y: chart.topPad,
   	dy: "-.2em",
-  	text: "Forecast update time: " + moment(data.properties.updateTime).fromNow() //new Date(data.properties.updateTime).toLocaleString()
+  	text: "Forecast update time: " + ageString(data.properties.updateTime) //moment(data.properties.updateTime).fromNow()
   });
   /* html += '<path class="axes" d="'
     + 'M' + chart.xAxOrig + ',' + chart.yAxOrig
