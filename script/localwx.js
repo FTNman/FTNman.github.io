@@ -229,12 +229,14 @@ function initWX(data,status,xhdr){
   $('#loc').html(locStr);
   var html = '';
   var loc = data.properties.relativeLocation.properties;
+  var fcstUrl = data.properties.forecast;
   var hrlyUrl = data.properties.forecastHourly;
   var gridUrl = data.properties.forecastGridData;
   var staUrl = data.properties.observationStations;
   $('#subloc').empty().html(NWS.m2mi(loc.distance.value).toFixed(1) + 'mi ' + NWS.deg2compass(loc.bearing.value) + ' of ' + loc.city + ', ' + loc.state);
   html += '<pre>'+xhdr.responseText+'</pre>';
   $('#dta').html(html);
+  NWS.getData(fcstUrl,processForecast);
   NWS.getData(hrlyUrl,function(d){NWS['hrly']=d;});
   NWS.getData(gridUrl,function(d,s,h){NWS['grid']=d;plotGrid(d,s,h);});//prcsGrid(d,s,h)});
   NWS.getData(staUrl,function(d,s,h){NWS['stations']=d;getObservations(d,s,h);});
@@ -500,6 +502,17 @@ function prcsGrid(data, status, xhdr) {
   html += '</table>';
   $('#wx').html(html);
 }
+function processForecast(data,status,hdr){
+	var html = '',
+		fper = data.properties.periods[0];
+	NWS['fcst']=data;
+	html += TAG.p({
+		'class': 'fcst',
+		text: TAG.span({'class': 'boldBrown', text: 'Forecast for '+fper.name+': '})+fper.detailedForecast
+	});
+	$("#forecast").empty().html(html);
+}
+
 function localTime(dstr,offset) {
   var d = new Date(dstr);
   var locD = new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), d.getUTCHours()+offset);
