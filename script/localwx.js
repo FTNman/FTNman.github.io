@@ -190,6 +190,13 @@ var NWS = {
   },
   apiFail: function(h,s,e,url) {
     alert('APIFAIL: '+url+'\nStatus: '+s+' Error: '+e);
+  },
+  extremes: function(ary,accfun) {
+  	if (arguments.length==2){ary = ary.map((e)=>accfun(e));};
+  	return ary.reduce(
+  	  (m,a)=>[Math.min(m[0],a), Math.max(m[1],a)],
+  	  [Number.MAX_VALUE, Number.MIN_VALUE]
+  	);
   }
 };
 var widgetObj,
@@ -400,8 +407,8 @@ function plotGrid(data, status, xhdr){
   html = '';
   C2 = new Chart(chtWid, chtHgt, .05*chtWid, .05*chtWid, .2*chtHgt, .2*chtHgt);
   var at = data.properties.apparentTemperature,
-      temp = data.properties.temperature,
-      tempMinMax = at.values
+      temp = data.properties.temperature;
+      /* tempMinMax = at.values
       	//filter temperature change of 40 deg C in one period (implies data error)
       	.filter(function(e, i, a){return (e.value!==null) && (i===0 ? true : Math.abs(+e.value - +a[i-1].value) < 40)})
       	.reduce(function(m, a) {
@@ -411,7 +418,14 @@ function plotGrid(data, status, xhdr){
       }, {min: Number.MAX_VALUE, max: Number.MIN_VALUE});
   //console.log('min-max: ' + tempMinMax.min + ', ' + tempMinMax.max);
   C2.yMin = tempMinMax.min-(tempMinMax.min%5);
-  C2.yRange = tempMinMax.max+(5-(tempMinMax.max%5)) - C2.yMin;
+  C2.yRange = tempMinMax.max+(5-(tempMinMax.max%5)) - C2.yMin; */
+  // Test new NWS.extremes(ary, accessor)
+  console.log('Temp extremes: ' + NWS.extremes(temp.values, (e)=>NWS.degF(e.value, temp.uom)));
+  console.log('Apparent Temp extremes: ' + NWS.extremes(at.values, (e)=>NWS.degF(e.value, at.uom)));
+  console.log('O/A Temp extremes: ' + NWS.extremes(at.values.concat(temp.values), (e)=>NWS.degF(e.value, at.uom)));
+  var tempExtremes = NWS.extremes(at.values.concat(temp.values), (e)=>NWS.degF(e.value, at.uom));
+  C2.yMin = tempExtremes[0] - (tempExtremes[0] % 5);
+  C2.yRange = tempExtremes[1] + (5 - (tempExtremes[1] % 5)) - C2.yMin;
   C2.xMin = chart.xMin; C2.xRange = chart.xRange;
   html += '<svg id="Temp" version="1.1" width="'+chtWid+'" height="'+chtHgt+'">';
   html += TAG.buildTag('defs', 
