@@ -197,7 +197,8 @@ var NWS = {
   	  (m,a)=>[Math.min(m[0],a), Math.max(m[1],a)],
   	  [Number.MAX_VALUE, Number.MIN_VALUE]
   	);
-  }
+  },
+  badTemps:function(e,i,a){ return i==0 || Math.abs(a[i-1].value - e.value) < 40; }
 };
 var widgetObj,
     defaultLatLon = '39.8092794,-75.4865866',//'41.9796,-87.9045',
@@ -420,10 +421,10 @@ function plotGrid(data, status, xhdr){
   C2.yMin = tempMinMax.min-(tempMinMax.min%5);
   C2.yRange = tempMinMax.max+(5-(tempMinMax.max%5)) - C2.yMin; */
   // Test new NWS.extremes(ary, accessor)
-  console.log('Temp extremes: ' + NWS.extremes(temp.values, (e)=>NWS.degF(e.value, temp.uom)));
-  console.log('Apparent Temp extremes: ' + NWS.extremes(at.values, (e)=>NWS.degF(e.value, at.uom)));
-  console.log('O/A Temp extremes: ' + NWS.extremes(at.values.concat(temp.values), (e)=>NWS.degF(e.value, at.uom)));
-  var tempExtremes = NWS.extremes(at.values.concat(temp.values), (e)=>NWS.degF(e.value, at.uom));
+  console.log('Temp extremes: ' + NWS.extremes(temp.values.filter(NWS.badTemps), (e)=>NWS.degF(e.value, temp.uom)));
+  console.log('Apparent Temp extremes: ' + NWS.extremes(at.values.filter(NWS.badTemps), (e)=>NWS.degF(e.value, at.uom)));
+  console.log('O/A Temp extremes: ' + NWS.extremes(at.values.filter(NWS.badTemps).concat(temp.values.filter(NWS.badTemps)), (e)=>NWS.degF(e.value, at.uom)));
+  var tempExtremes = NWS.extremes(at.values.filter(NWS.badTemps).concat(temp.values.filter(NWS.badTemps)), (e)=>NWS.degF(e.value, at.uom));
   C2.yMin = tempExtremes[0] - (tempExtremes[0] % 5);
   C2.yRange = tempExtremes[1] + (5 - (tempExtremes[1] % 5)) - C2.yMin;
   C2.xMin = chart.xMin; C2.xRange = chart.xRange;
