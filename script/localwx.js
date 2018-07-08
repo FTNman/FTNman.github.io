@@ -257,7 +257,9 @@ function getObservations(data, status, hdr) {
 function processConditions(data, status, hdr) {
 	NWS['observations'] = data;
 	let html = '';
-	const conditions = data.features[0].properties;
+	//Find first observation with non-null temperature; if none, report latest anyway.
+	var validConditions = data.features.filter((e)=>e.properties.temperature.value !== null);
+	const conditions = (validConditions.length > 0) ? validConditions[0].properties : data.features[0].properties;
 	let fl = conditions.temperature.value === null ? null : NWS.degF(conditions.temperature.value, conditions.temperature.unitCode);
 	if (conditions.heatIndex.value !== null) { fl = NWS.degF(conditions.heatIndex.value, conditions.heatIndex.unitCode); }
 	if (conditions.windChill.value !== null) { fl = NWS.degF(conditions.windChill.value, conditions.windChill.unitCode); }
@@ -452,12 +454,12 @@ function plotGrid(data, status, xhdr){
   });
   html += '<g id="chartArea" clip-path="url(#clipToChart)">';
   html += TAG.buildTag('path', {class: 'airTemp atPath',
-    d: temp.values
+    d: temp.values.filter(NWS.badTemps)
        .map(function(e){return {validTime: e.validTime, value: NWS.degF(e.value, at.uom)}})
        .map(function(e,i){return C2.mapPath.call(C2,e,i)}).join('\n')
   });
   html += TAG.buildTag('path', {class: 'appTemp atPath',
-    d: at.values
+    d: at.values.filter(NWS.badTemps)
        .map(function(e){return {validTime: e.validTime, value: NWS.degF(e.value, at.uom)}})
        .map(function(e,i){return C2.mapPath.call(C2,e,i)}).join('\n')
   });
