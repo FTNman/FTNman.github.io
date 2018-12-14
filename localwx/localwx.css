@@ -117,8 +117,10 @@ h3, h4, h5, p {
   font-size: 9pt;
 }
 .probPrecip {
-  stroke: forestgreen;
-  fill: forestgreen;
+/*   stroke: forestgreen;
+  fill: forestgreen; */
+  stroke: #007fff;
+  fill: #007fff;
 }
 .quantPrecip {
   stroke: blue;
@@ -136,6 +138,15 @@ h3, h4, h5, p {
   text-anchor: middle;
   font-family: Arial, sans-serif;
   font-size: 8pt;
+}
+.popLine {
+	stroke-width: 3px;
+	stroke: cyan;
+}
+.popLine + .popLab {
+	display: inline;
+	fill: #007fff;
+	stroke: #007fff;
 }
 /* .popClause {
   fill: forestgreen;

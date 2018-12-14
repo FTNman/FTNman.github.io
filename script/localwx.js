@@ -73,9 +73,9 @@ Chart.prototype.mapPoP = function(e) {
   html += '<line class="popLine" x1="' + x1 + '" x2="' + x2 + '" y1="' + y + '" y2="' + y + '"></line>';
   html +=TAG.text({
     class: 'popLab',
-    x: x1,// + ((x2-x1)/2),
+    x: x1 + ((x2-x1)/2),
     y: y,
-    text: e.value+''
+    text: e.value+'%'
   });
   return html;
 };
@@ -393,10 +393,11 @@ function plotGrid(data, status, xhdr){
   html += chart.yAxisLabels({ticInc: 25});
   html += chart.xAxisTimeline();
   html += '<g id="chartArea" clip-path="url(#clipToChart)">';
-  html += TAG.buildTag('path', {class: 'probPrecip atPath',
+/*   html += TAG.buildTag('path', {class: 'probPrecip atPath',
     d: pop.values.map(function(e,i){return chart.mapPath.call(chart,e,i)}).join('\n')
   });
-  html += pop.values.map(function(e){return chart.mapTextLab.call(chart,e)}).join('\n');
+  html += pop.values.map(function(e){return chart.mapTextLab.call(chart,e)}).join('\n'); */
+  html += pop.values.map(e=>chart.mapPoP.call(chart,e)).join("\n");
   html += quantPrecip.values.filter(function(e){return e.value>0;}).map(function(e,i,a){return chart.mapQuantPrecip.call(chart,e,i,a,'qPbox')}).join('\n');
   html += data.properties.snowfallAmount.values.filter(function(e){return e.value}).map(function(e,i,a){return chart.mapQuantPrecip.call(chart,e,i,a,'snowbox')}).join('\n');
   html += TAG.buildTag('path', {class: 'humPath',
