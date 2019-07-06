@@ -223,6 +223,8 @@ function CityChange(o) {
   	  	text: geo.Name + ', ' + geo.State +' (' + (+geo.Lat).toFixed(4) + ',' + (+geo.Lon).toFixed(4) + ')'
   	  })
   );
+  //Erase previous weather alerts
+  $('#alerts').empty();
   NWS.getData(url,initWX);
 };
 function initWX(data,status,xhdr){
@@ -244,10 +246,32 @@ function initWX(data,status,xhdr){
   $('#subloc').empty().html(NWS.m2mi(loc.distance.value).toFixed(1) + 'mi ' + NWS.deg2compass(loc.bearing.value) + ' of ' + loc.city + ', ' + loc.state);
   html += '<pre>'+xhdr.responseText+'</pre>';
   $('#dta').html(html);
+  let alertsUrl = "https://api.weather.gov/alerts";
+  $.getJSON(alertsUrl, {active: 1, point: data.geometry.coordinates.slice().reverse().join(",")})
+  	.done(processAlerts)
+  	.fail(s=>alert("Couldn't get wx Alerts. Error: " + s));
   NWS.getData(fcstUrl,processForecast);
   NWS.getData(hrlyUrl,function(d){NWS['hrly']=d;});
   NWS.getData(gridUrl,function(d,s,h){NWS['grid']=d;plotGrid(d,s,h);});//prcsGrid(d,s,h)});
   NWS.getData(staUrl,function(d,s,h){NWS['stations']=d;getObservations(d,s,h);});
+};
+function processAlerts(data, status, hdr) {
+	NWS['alerts'] = data;
+	var html = '';
+	html += data.features.map(formatAlert).join("");
+	console.log(html);
+	$("#alerts").empty().html(html);
+};
+function formatAlert(feature,i) {
+	var alert = feature.properties,
+		html = '';
+	html += TAG.div({'class': 'alert', text: 
+		TAG.buildTag('input', {'class': 'read-more-state', type: 'checkbox', id: 'alert-'+i})
+		+ TAG.buildTag('label', {"class": "read-more-trigger", 'for': 'alert-'+i})
+		+ TAG.p({"class": "read-more-wrap", text: [[alert.severity, alert.event, alert.headline].join(" - "),
+			TAG.buildTag("span", {"class": "read-more-target", text: alert.description})]})
+	});
+	return html;
 };
 function getObservations(data, status, hdr) {
   let obsUrl = data.observationStations[0];

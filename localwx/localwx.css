@@ -20,6 +20,12 @@ h3, h4, h5, p {
   padding: 0;
   margin: 0;
 }
+#alerts {
+	/* font-size: 16pt; */
+	font-weight: bold;
+	font-family: "Fredoka One", sans-serif;
+	color: red;
+}
 #currCond {
 	font-family: Calibri, sans-serif;
 }
@@ -214,4 +220,43 @@ h3, h4, h5, p {
   stroke: orange;
   stroke-width: 2pt;
   fill: none;
+}
+/* 
+CSS needed to create Collapsible alerts
+*/
+.read-more-state {
+  display: none;
+}
+
+.read-more-target {
+  opacity: 0;
+  max-height: 0;
+  font-size: 0;
+  transition: .25s ease;
+}
+
+.read-more-state:checked ~ .read-more-wrap .read-more-target {
+  opacity: 1;
+  font-size: inherit;
+  max-height: 999em;
+}
+
+.read-more-state ~ .read-more-trigger:before {
+  content: '\002B';/* 'Show more'; */
+}
+
+.read-more-state:checked ~ .read-more-trigger:before {
+  content: "\2212";/* 'Show less'; */
+}
+
+.read-more-trigger {
+  cursor: pointer;
+  display: inline;/* -block; */
+  float: left;
+  padding: 0 .5em;
+  color: #666;
+  font-size: .9em;
+  /* line-height: 2; */
+  border: 1px solid #ddd;
+  border-radius: .25em;
 }
