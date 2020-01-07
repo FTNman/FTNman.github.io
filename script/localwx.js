@@ -259,7 +259,6 @@ function processAlerts(data, status, hdr) {
 	NWS['alerts'] = data;
 	var html = '';
 	html += data.features.map(formatAlert).join("");
-	console.log(html);
 	$("#alerts").empty().html(html);
 };
 function formatAlert(feature,i) {
@@ -394,11 +393,15 @@ function plotGrid(data, status, xhdr){
     x: chart.xAxOrig + (chart.xAxLen/2),
     y: chart.topPad - 20,
     text: [
+      TAG.tspan({class: 'cCover ttlText', text: 'Cloud Cover'}),
+      ', ',
       TAG.tspan({class: 'quatPrecip ttlText', text: 'Quantitative Precipitation'}),
       ', ',
       TAG.tspan({class: 'probPrecip ttlText', text: 'Probability of Precipitation'}),
+      ', ',
+      TAG.tspan({class: 'relHum ttlText', text: 'Relative Humidity'}),
       ' & ',
-      TAG.tspan({class: 'relHum ttlText', text: 'Relative Humidity'})
+      TAG.tspan({class: 'dewpt ttlText', text: 'Dewpoint'})
     ]
   });
   html += TAG.text({
@@ -421,11 +424,21 @@ function plotGrid(data, status, xhdr){
     d: pop.values.map(function(e,i){return chart.mapPath.call(chart,e,i)}).join('\n')
   });
   html += pop.values.map(function(e){return chart.mapTextLab.call(chart,e)}).join('\n'); */
+  skyPts = data.properties.skyCover.values.map(function(e,i){return chart.mapPath.call(chart,e,i)});
+  firstPt = data.properties.skyCover.values[0];
+  firstPt.value = 0;
+  lastPt = data.properties.skyCover.values[data.properties.skyCover.values.length-1];
+  lastPt.value=0;
+  //console.log(skyPts.join("\n") + chart.mapPath(lastPt,1) + "\n" + chart.mapPath(firstPt,1));
+  html += TAG.buildTag('path', {class: 'skyPath', d: skyPts.join("\n") + chart.mapPath(lastPt,1) + "\n" + chart.mapPath(firstPt,1)});
   html += pop.values.map(e=>chart.mapPoP.call(chart,e)).join("\n");
   html += quantPrecip.values.filter(function(e){return e.value>0;}).map(function(e,i,a){return chart.mapQuantPrecip.call(chart,e,i,a,'qPbox')}).join('\n');
   html += data.properties.snowfallAmount.values.filter(function(e){return e.value}).map(function(e,i,a){return chart.mapQuantPrecip.call(chart,e,i,a,'snowbox')}).join('\n');
   html += TAG.buildTag('path', {class: 'humPath',
     d: data.properties.relativeHumidity.values.map(function(e,i){return chart.mapPath.call(chart,e,i)}).join('\n')
+  });
+  html += TAG.buildTag('path', {class: 'dewPath',
+    d: data.properties.dewpoint.values.map(e=>{e.value=NWS.degF(e.value,"unit:degC");return e;}).map(function(e,i){return chart.mapPath.call(chart,e,i)}).join('\n')
   });
   html += '</g>';
   html += '</svg>';

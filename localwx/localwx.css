@@ -136,6 +136,10 @@ h3, h4, h5, p {
   fill: orange;
   stroke: orange;
 }
+.dewpt {
+  fill: #006600;
+  stroke: #006600;
+}
 .popPath {
   stroke-width: 2pt;
   fill: none;
@@ -220,6 +224,21 @@ h3, h4, h5, p {
   stroke: orange;
   stroke-width: 2pt;
   fill: none;
+}
+.dewPath {
+  stroke: #006600;
+  stroke-width: 2pt;
+  fill: none;
+}
+.skyPath {
+	fill: gray;
+	opacity: 50%;
+}
+.cCover {
+	background-color: salmon;
+	fill: gray;
+	stroke: gray;
+	opacity: 50%;
 }
 /* 
 CSS needed to create Collapsible alerts
