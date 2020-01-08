@@ -430,7 +430,7 @@ function plotGrid(data, status, xhdr){
   lastPt = data.properties.skyCover.values[data.properties.skyCover.values.length-1];
   lastPt.value=0;
   //console.log(skyPts.join("\n") + chart.mapPath(lastPt,1) + "\n" + chart.mapPath(firstPt,1));
-  html += TAG.buildTag('path', {class: 'skyPath', d: skyPts.join("\n") + chart.mapPath(lastPt,1) + "\n" + chart.mapPath(firstPt,1)});
+  html += TAG.buildTag('path', {class: 'skyPath', d: skyPts.join("\n") + chart.mapPath(lastPt,1) + "\n" + chart.mapPath(firstPt,1) + "Z"});
   html += pop.values.map(e=>chart.mapPoP.call(chart,e)).join("\n");
   html += quantPrecip.values.filter(function(e){return e.value>0;}).map(function(e,i,a){return chart.mapQuantPrecip.call(chart,e,i,a,'qPbox')}).join('\n');
   html += data.properties.snowfallAmount.values.filter(function(e){return e.value}).map(function(e,i,a){return chart.mapQuantPrecip.call(chart,e,i,a,'snowbox')}).join('\n');
