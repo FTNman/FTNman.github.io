@@ -477,7 +477,8 @@ function plotGrid(data, status, xhdr){
   	  })
   	})
   );
-  html += C2.yAxisLabels({ticInc: 5});
+  tempAxTicInc = C2.yRange / 5 > 7 ? 10 : 5;
+  html += C2.yAxisLabels({ticInc: tempAxTicInc});
   html += C2.xAxisTimeline();
   html += TAG.text({
     class: 'chartTitle',
