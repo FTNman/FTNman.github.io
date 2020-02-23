@@ -13,6 +13,7 @@ const parishotels = {
                 "type": "hotel",
                 "importance": 0.42100000000000004,
                 "icon": "https://nominatim.openstreetmap.org/images/mapicons/accommodation_hotel2.p.20.png",
+                "alt_icon": "img/bed-hotel-maroon.png",
                 "address": {
                     "hotel": "Lenox Montparnasse (Day 1)",
                     "house_number": "15",
@@ -57,6 +58,7 @@ const parishotels = {
                 "type": "hotel",
                 "importance": 0.33100000000000007,
                 "icon": "https://nominatim.openstreetmap.org/images/mapicons/accommodation_hotel2.p.20.png",
+                "alt_icon": "img/bed-hotel-black.png",
                 "address": {
                     "hotel": "Mercure (Last Day)",
                     "road": "Rue de la Sorbonne",

@@ -17,28 +17,34 @@
 		<script type="text/javascript" src="dlrestos.js"></script>
 		<style
 			type="text/css">
+			body {font-family: sans-serif;}
 			#mapid {
-				height: 760px;
+				height: 560px;
 				width: 1000px;
 			}
 			.my-div-icon { display: none; background-color: crimson; }
-			#input {padding-bottom: 10px;}
+			#input {padding-bottom: 10px; display: none;}
 			.place {width: 300px;}
-			ul.legend {
-				list-style-type: none;
+			h3 {
+				padding-bottom: 0;
+				margin-bottom: 0
 			}
+			p#first {padding-top: 0; margin-top:0;}
 		</style>
 		<title>Paris Hotels and Restaurants</title>
 	</head>
 	<body>
 		<h3>Map of Paris, with selected restaurants and hotels.</h3>
-		<ul class="legend">
-			<li><img alt="purple pointer" src="img/marker-icon-violet.png">Restaurants</li>
-			<li><img alt="blue pointer" src="img/marker-icon-blue.png">Hotels</li>
-		</ul>
-		<p>Click on any marker to see details about the restaurant/hotel.
+		<p id="first">
+		This map shows the location of the hotels we are staying at in Paris: <img height="20px" width="20" src="img/bed-hotel-maroon.png">
+		Hotel Lenox Montparnasse on Day 1, and <img height="20px" width="20px" src="img/bed-hotel-black.png">
+		Hotel Mercure on the last day.
+		</p>
+		<p>Restaurants recommended by <a href="https://www.davidlebovitz.com/paris/">David Lebovitz' blog</a>
+		are shown with a purple pin.   Click on any marker to see details about the restaurant/hotel.
 		Restaurants have a clickable link that opens a new tab with either the
 		restaurant's web site, or a blog posting that describes the place.</p>
+		<p>Move the map around to see all the restaurants.</p>
 		<div id="input">
 			<input type="text" class="place" placeholder="Type a place query">
 		</div>
@@ -102,14 +108,20 @@
 
 			function displayMap(mymap, midPoint) {
 				let mapMid = midPoint;
-				mymap.setView(/* mapMid */featureList.features[0].geometry.coordinates.slice().reverse(), 13);
+				mymap.setView(/* mapMid */featureList.features[1].geometry.coordinates.slice().reverse(), 12.5);//13);
 				L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 						attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
 						maxZoom: 18,
 				}).addTo(mymap);
+				//Add hotels to the map
 				L.geoJSON(featureList, {
 						pointToLayer: function(feature, latlng) {
-							return L.marker(latlng)
+							var HotelMarker = new L.Icon({
+								iconUrl: feature.properties.alt_icon,
+								iconSize: [40, 40],
+								iconAnchor: [20,40]
+							});
+							return L.marker(latlng, {icon:HotelMarker})
 							.bindPopup(feature.properties.address.hotel
 								+ "<br/>" + ((feature.properties.address.house_number)?(feature.properties.address.house_number+', '):("")) + feature.properties.address.road
 								+ "<br/>" + feature.properties.address.city + ", " + feature.properties.address.country + " " + feature.properties.address.postcode)
