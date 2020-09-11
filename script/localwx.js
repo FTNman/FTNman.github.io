@@ -278,6 +278,8 @@ function getObservations(data, status, hdr) {
   .done(processConditions);
 };
 function processConditions(data, status, hdr) {
+	//TODO: Replace all the dynamic string build with filling in values in the html file.
+	//		Move the daily hi/low to grid processing
 	NWS['observations'] = data;
 	let html = '';
 	//Find first observation with non-null temperature; if none, report latest anyway.
@@ -342,14 +344,16 @@ function processConditions(data, status, hdr) {
 		"class": "tempRange",
 		text: TAG.span({style: "font-weight: bold", text: "Feels like: "}) + fl + "&deg;"
 	});
-	html += TAG.p({
-		"class": "tempRange",
-		text: TAG.span({style: "font-weight: bold", text: "High: "}) + NWS.degF(NWS.grid.properties.maxTemperature.values[0].value, NWS.grid.properties.maxTemperature.uom) + "&deg;"
-	});
-	html += TAG.p({
-		"class": "tempRange",
-		text: TAG.span({style: "font-weight: bold", text: "Low: "}) + NWS.degF(NWS.grid.properties.minTemperature.values[0].value, NWS.grid.properties.minTemperature.uom) + "&deg;"
-	});
+	if (NWS.hasOwnProperty('grid')){
+		html += TAG.p({
+			"class": "tempRange",
+			text: TAG.span({style: "font-weight: bold", text: "High: "}) + NWS.degF(NWS.grid.properties.maxTemperature.values[0].value, NWS.grid.properties.maxTemperature.uom) + "&deg;"
+		});
+		html += TAG.p({
+			"class": "tempRange",
+			text: TAG.span({style: "font-weight: bold", text: "Low: "}) + NWS.degF(NWS.grid.properties.minTemperature.values[0].value, NWS.grid.properties.minTemperature.uom) + "&deg;"
+		});
+	}
 	$("#currCond").empty().html(html);
 };
 function ageString(ts) {
@@ -373,12 +377,13 @@ function plotGrid(data, status, xhdr){
     chtWid = 1000,
     svt = new Date(data.properties.validTimes.split('/')[0]),
     pop = data.properties.probabilityOfPrecipitation,
-    quantPrecip = data.properties.quantitativePrecipitation;
+    quantPrecip = data.properties.quantitativePrecipitation,
+    daysToChart = 7;
 /*   $('h5').empty();
   $('#subloc').after('<h5>Forecast update time: '+new Date(data.properties.updateTime).toLocaleString()+'</h5>'); */
   chart = new Chart(chtWid, chtHgt, .05*chtWid, .05*chtWid, .2*chtHgt, .2*chtHgt);
   chart.yMin = 0; chart.yRange = 100;
-  chart.xMin = svt.getTime(); chart.xRange = 1000*60*60*24*5;
+  chart.xMin = svt.getTime(); chart.xRange = 1000*60*60*24*daysToChart; //Days of forecast to chart
   html += '<svg id="PoP" version="1.1" width="'+chtWid+'" height="'+chtHgt+'">';
   html += TAG.buildTag('defs', 
   	TAG.buildTag('clipPath', {
@@ -513,7 +518,15 @@ function plotGrid(data, status, xhdr){
   	  let deg = NWS.degF(e.value, minTemps.uom);
   	  let x = timeScale(tim);
   	  let y = tempScale(deg);
-  	  let opts = $.extend({}, options, {x: x, y: y, text: deg.toString()});
+  	  let dy = "0em"
+  	  if (options.above) {
+  	  	  dy = deg > (C2.yMin + C2.yRange - 5) ? "1em" : "0em"
+  	  }
+  	  else {
+  	  	  dy = ".67em"
+  	  }
+  	  delete options["above"]
+  	  let opts = $.extend({}, options, {x: x, y: y, dy: dy, text: deg.toString()});
   	  rzlt += TAG.text(opts);
 	  /* rzlt += TAG.buildTag('path', {
 		  d: "M" + (x-10) + "," + y + " l20,0 m-10,-10 l0,20",
@@ -522,9 +535,9 @@ function plotGrid(data, status, xhdr){
   	  return rzlt;
   };
   html += maxTemps.values
-  		.map(function(e){return tempLabs(e, {'class': 'minTLab', dy: "0em"})});
+  		.map(function(e){return tempLabs(e, {'class': 'minTLab', above: true})});
   html += minTemps.values
-  		.map(function(e){return tempLabs(e, {'class': 'minTLab', dy: ".67em"})});
+  		.map(function(e){return tempLabs(e, {'class': 'minTLab', above: false})});
   html += TAG.buildTag('line', { class: 'freezingPoint',
   	x1: C2.xAxOrig, y1 : C2.ypos(32),
   	x2: C2.xAxOrig + C2.xAxLen, y2: C2.ypos(32)
