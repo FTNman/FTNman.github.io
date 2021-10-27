@@ -72,6 +72,17 @@ h3, h4, h5, p {
 	color: brown;
 	font-weight: bold;
 }
+.fcsticon {
+	padding-right: 10pt;
+	float: left;
+}
+.iconname {
+	text-align:center;
+	font-weight: bold;
+	font-size: small;
+	padding: 0pt;
+	margin:0pt;
+}
 .chartTitle {
   fill: black;
   stroke: none;

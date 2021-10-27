@@ -573,12 +573,23 @@ function prcsGrid(data, status, xhdr) {
 }
 function processForecast(data,status,hdr){
 	var html = '',
-		fper = data.properties.periods[0];
+		periods = data.properties.periods,
+		fper = periods[0];
 	NWS['fcst']=data;
 	html += TAG.p({
 		'class': 'fcst',
 		text: TAG.span({'class': 'boldBrown', text: 'Forecast for '+fper.name+': '})+fper.detailedForecast
 	});
+	html += "<div>" + periods
+			.filter(r=>r.isDaytime)
+			.map(r=>"<div class='fcsticon'>" + TAG.img({
+					src:r.icon,
+					alt:r.shortForecast,
+					title:r.detailedForecast
+				}) + "<p class='iconname'>"+r.name+"</p></div>"
+			)
+			.join('') + "</div>";
+
 	$("#forecast").empty().html(html);
 }
 
