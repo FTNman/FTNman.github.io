@@ -274,7 +274,8 @@ function formatAlert(feature,i) {
 };
 function getObservations(data, status, hdr) {
   let obsUrl = data.observationStations[0];
-  $.getJSON(obsUrl+"/observations",{limit: 5})
+  //get all the observations for this station
+  $.getJSON(obsUrl+"/observations")
   .done(processConditions);
 };
 function processConditions(data, status, hdr) {
@@ -283,9 +284,11 @@ function processConditions(data, status, hdr) {
 	NWS['observations'] = data;
 	let html = '';
 	//Find first observation with non-null temperature; if none, report latest anyway.
-	var validConditions = data.features.filter((e)=>e.properties.temperature.value !== null);
+	var validConditions = data.features
+	.filter((e)=>e.properties.temperature.value !== null).slice()
+	.sort((a,b)=>moment(b.properties.timestamp).diff(moment(a.properties.timestamp)));
 	const conditions = (validConditions.length > 0) ? validConditions[0].properties : data.features[0].properties;
-	let fl = conditions.temperature.value === null ? null : NWS.degF(conditions.temperature.value, conditions.temperature.unitCode);
+ 	let fl = conditions.temperature.value === null ? null : NWS.degF(conditions.temperature.value, conditions.temperature.unitCode);
 	if (conditions.heatIndex.value !== null) { fl = NWS.degF(conditions.heatIndex.value, conditions.heatIndex.unitCode); }
 	if (conditions.windChill.value !== null) { fl = NWS.degF(conditions.windChill.value, conditions.windChill.unitCode); }
 	html += TAG.buildTag('h4', {
@@ -362,7 +365,7 @@ function ageString(ts) {
 	if ( !dur.isValid() ) { rzlt = 'unknown'; }
 	else if (dur.asMilliseconds() < (1000 * 60)) { rzlt = 'just now'; }
 	else {
-		rzlt += dur.days() ? (dur.days() + ' day' + pluralSfx(dur.days()) + '') : '';
+		rzlt += dur.days() ? (dur.days() + ' day' + pluralSfx(dur.days()) + ' ') : '';
 		rzlt += dur.hours() ? (dur.hours() + ' hr' + pluralSfx(dur.hours()) + ' ') : '';
 		rzlt += (dur.minutes() + Math.round(dur.seconds() / 60)) ? (dur.minutes() + Math.round(dur.seconds() / 60) + ' min' + pluralSfx(dur.minutes() + Math.round(dur.seconds() / 60)) + ' ago') : '';
 	}
