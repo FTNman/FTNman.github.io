@@ -287,6 +287,17 @@ function processConditions(data, status, hdr) {
 	var validConditions = data.features
 	.filter((e)=>e.properties.temperature.value !== null).slice()
 	.sort((a,b)=>moment(b.properties.timestamp).diff(moment(a.properties.timestamp)));
+	/* 
+	var validConditions = data.features.filter((e)=>e.properties.temperature.value !== null);
+	let fmax=(a,b)=>(moment(a.properties.timestamp) > moment(b.properties.timestamp))?a:b;
+	const conditions;
+	if (validConditions.length >= 0) {
+		conditions = validConditions.reduce(fmax) // Select observation with temperature.value not null && newest timestamp
+		}
+		else {
+		conditions = data.observations.features[0];
+		}
+	 */
 	const conditions = (validConditions.length > 0) ? validConditions[0].properties : data.features[0].properties;
  	let fl = conditions.temperature.value === null ? null : NWS.degF(conditions.temperature.value, conditions.temperature.unitCode);
 	if (conditions.heatIndex.value !== null) { fl = NWS.degF(conditions.heatIndex.value, conditions.heatIndex.unitCode); }
@@ -581,7 +592,9 @@ function processForecast(data,status,hdr){
 	NWS['fcst']=data;
 	html += TAG.p({
 		'class': 'fcst',
-		text: TAG.span({'class': 'boldBrown', text: 'Forecast for '+fper.name+': '})+fper.detailedForecast
+		text: TAG.span({'class': 'boldBrown', text: 'Forecast for '+fper.name+': '})
+			+ fper.detailedForecast
+			+ TAG.span({'class': 'gridUpdtTime', 'text': ('(' + data.properties.generatedAt + ')')})
 	});
 	html += "<div>" + periods
 			.filter(r=>r.isDaytime)
