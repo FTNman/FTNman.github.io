@@ -183,10 +183,23 @@ var NWS = {
   Pa2InHg: function(pa) {
   	  return 0.0075006 * pa * .1 / 2.54;
   },
-  getData: function(url, callback, wxType) {
+  getData: function(url, callback, retries) {
+  	  console.log("In getData for: " + url);
+  	  var tries = retries;
+  	  var getUrl = (urlToGet,callBackToCall) => $.getJSON(urlToGet).done(callBackToCall).fail(reGet);
+  	  var reGet = function(h,s,e) {
+  	  	  tries--;
+  	  	  alert('apiFail for: '+url+'\nStatus: '+h.status+' - '+e + '; Retries:[' + tries + ']');
+  	  	  if (tries > 0) {
+  	  	  	  getUrl(url,callback)
+  	  	  } 
+  	  }
+  	  return getUrl(url,callback);
+  },
+  OLDgetData: function(url, callback, wxType) {
     $.getJSON(url)
     .done(callback)//.fail(function(h,s,e){this.apiFail(h,s,e,url)});
-    .fail(function(h,s,e){alert('apiFail for: '+url+'\nStatus: '+s+' Error: '+e)});
+    .fail(function(h,s,e){alert('apiFail for: '+url+'\nStatus: '+h.status+' - '+e)});
   },
   apiFail: function(h,s,e,url) {
     alert('APIFAIL: '+url+'\nStatus: '+s+' Error: '+e);
@@ -200,6 +213,21 @@ var NWS = {
   },
   badTemps:function(e,i,a){ return i==0 || Math.abs(a[i-1].value - e.value) < 40; }
 };
+//////////////////////////////////////////////////////
+function getData(url, callback, retries) {
+  console.log("In getData for: " + url);
+  var tries = retries;
+  var getUrl = (urlToGet,callBackToCall) => $.getJSON(urlToGet).done(callBackToCall).fail(reGet);
+  var reGet = function(h,s,e) {
+    tries--;
+    alert('apiFail for: '+url+'\nStatus: '+h.status+' - '+e + '; Retries:[' + tries + ']');
+    if (tries > 0) {
+      getUrl(url,callback)
+    } 
+  }
+  return getUrl(url,callback);
+}
+//////////////////////////////////////////////////////
 var widgetObj,
     defaultLatLon = '39.8092794,-75.4865866',//'41.9796,-87.9045',
     chart,
