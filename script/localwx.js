@@ -253,7 +253,7 @@ function CityChange(o) {
   );
   //Erase previous weather alerts
   $('#alerts').empty();
-  NWS.getData(url,initWX);
+  NWS.getData(url,initWX,5); //retry 5 times
 };
 function initWX(data,status,xhdr){
   NWS['metaData'] = data;
@@ -278,10 +278,10 @@ function initWX(data,status,xhdr){
   $.getJSON(alertsUrl, {active: 1, point: data.geometry.coordinates.slice().reverse().join(",")})
   	.done(processAlerts)
   	.fail(s=>alert("Couldn't get wx Alerts. Error: " + s));
-  NWS.getData(fcstUrl,processForecast);
-  NWS.getData(hrlyUrl,function(d){NWS['hrly']=d;});
-  NWS.getData(gridUrl,function(d,s,h){NWS['grid']=d;plotGrid(d,s,h);});//prcsGrid(d,s,h)});
-  NWS.getData(staUrl,function(d,s,h){NWS['stations']=d;getObservations(d,s,h);});
+  NWS.getData(fcstUrl,processForecast,5); //retry 5 times
+  NWS.getData(hrlyUrl,function(d){NWS['hrly']=d;},1); //only try once - data not used
+  NWS.getData(gridUrl,function(d,s,h){NWS['grid']=d;plotGrid(d,s,h);},5);//retry 5 times
+  NWS.getData(staUrl,function(d,s,h){NWS['stations']=d;getObservations(d,s,h);},5); //retry 5 times
 };
 function processAlerts(data, status, hdr) {
 	NWS['alerts'] = data;
@@ -654,16 +654,16 @@ function geoError(err) {
 	};
 	alert('ERROR(' + err.code + ') in GeoLocation: [' + ((err.message.length > 0)?(err.message) : ('['+geoErrMsgs[err.code]+']') ) + ']');
   //loadWeather(urlTemplate + defaultLatLon);
-	NWS.getData(NWS.baseUrl + defaultLatLon,initWX);
+	NWS.getData(NWS.baseUrl + defaultLatLon,initWX,5); //retry 5 times
 };
 
 function wxAtMyLoc() {
   if (navigator.getgeolocation || "geolocation" in navigator) { //load wx w/ present lat/lng
     navigator.geolocation.getCurrentPosition(function(position) {
-      NWS.getData(NWS.baseUrl + position.coords.latitude+','+position.coords.longitude, initWX)
+      NWS.getData(NWS.baseUrl + position.coords.latitude+','+position.coords.longitude, initWX, 5)
     },geoError);
   } else {
-    NWS.getData(NWS.baseUrl + defaultLatLon,initWX);
+    NWS.getData(NWS.baseUrl + defaultLatLon,initWX,5);
   }
 };
 function scaleData() {
