@@ -622,7 +622,6 @@ function processForecast(data,status,hdr){
 		'class': 'fcst',
 		text: TAG.span({'class': 'boldBrown', text: 'Forecast for '+fper.name+': '})
 			+ fper.detailedForecast
-			+ TAG.span({'class': 'gridUpdtTime', 'text': ('(' + data.properties.generatedAt + ')')})
 	});
 	html += "<div>" + periods
 			.filter(r=>r.isDaytime)
