@@ -234,21 +234,27 @@ var widgetObj,
     C2;
 
 $("document").ready(function() {
-  widgetObj = search_api.create("srch", { 
-    "on_result": function(o) {CityChange(o);}
+  /*
+  Changes made on 3/1/2024 because of changes to the USGS Geocoder API
+  I cannot find links to the old search_api
+  Changes to localwx.html also had to be made.
+   */
+  widgetObj = gc.create("srch", { 
+    "onSelect": o => {CityChange(o);}
   }); 
   wxAtMyLoc();
 });
 function CityChange(o) {
-  NWS['geo'] = o.result;
-  var geo = o.result.properties;
-  city = geo.Name;
-  var url = NWS.baseUrl + (+geo.Lat).toFixed(4) + ',' + (+geo.Lon).toFixed(4); //41.9796,-87.9045;
+  NWS['geo'] = o.getSelected();
+  var geo = o.getSelected().properties;
+  lat = +geo.Latitude.toFixed(4);
+  lon = +geo.Longitude.toFixed(4);
+  var url = NWS.baseUrl + lat + ',' + lon; //41.9796,-87.9045;
   //url = NWS.baseUrl+'0,0';
   $('#loc').empty().html("Weather Forecast for: "
   	  + TAG.span({
   	  	style: "font-style: italic",
-  	  	text: geo.Name + ', ' + geo.State +' (' + (+geo.Lat).toFixed(4) + ',' + (+geo.Lon).toFixed(4) + ')'
+  	  	text: geo.Name + ', ' + geo.State +' (' + lat + ',' + lon + ')'
   	  })
   );
   //Erase previous weather alerts
