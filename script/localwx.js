@@ -165,6 +165,7 @@ Chart.prototype.yAxisLabels = function(options){
   return html;
 };
 var NWS = {
+  NWSapi: 'https://api.weather.gov/',
   baseUrl: 'https://api.weather.gov/points/',
   m2mi: function(m) {return m * 100 / 2.54 / 12 / 5280;},
   deg2compass: function(brng) {
@@ -632,7 +633,7 @@ function processForecast(data,status,hdr){
 	html += "<div>" + periods
 			.filter(r=>r.isDaytime)
 			.map(r=>"<div class='fcsticon'>" + TAG.img({
-					src:r.icon,
+					src:NWS.NWSapi + r.icon,
 					alt:r.shortForecast,
 					title:r.detailedForecast
 				}) + "<p class='iconname'>"+r.name+"</p></div>"
