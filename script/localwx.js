@@ -633,7 +633,7 @@ function processForecast(data,status,hdr){
 	html += "<div>" + periods
 			.filter(r=>r.isDaytime)
 			.map(r=>"<div class='fcsticon'>" + TAG.img({
-					src:NWS.NWSapi + r.icon,
+					src:(r.icon.search(/:\/{2}/) < 0 ? NWS.NWSapi : '') + r.icon,
 					alt:r.shortForecast,
 					title:r.detailedForecast
 				}) + "<p class='iconname'>"+r.name+"</p></div>"
